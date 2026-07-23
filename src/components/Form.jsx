@@ -56,7 +56,7 @@ function Form({ formRef }) {
 			</div>
 
 			<h2 className="contact__head">
-				<span className="bracket">[ </span>Let&apos;s<span className="accent"> talk</span>
+				<span className="bracket">[ </span>Get in<span className="accent"> touch</span>
 				<span className="bracket"> ]</span>
 			</h2>
 

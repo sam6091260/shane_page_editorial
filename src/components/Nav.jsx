@@ -7,6 +7,7 @@
  */
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import logo from "../assets/shhh-logo.png";
 
 /** 首頁各區塊：num 編號、name 對應區塊 id、label 顯示字、meta 右側描述。 */
 const SECTIONS = [
@@ -65,7 +66,8 @@ function Nav({ activeSection }) {
       <header className="site-header">
         <div className="site-header__inner container">
           <Link to="/" className="brand" onClick={() => go("index")}>
-            Shane&nbsp;Lin
+            <img src={logo} alt="logo" className="brand_logo" />
+            {/* <span>Shane&nbsp;Lin</span> */}
             <span className="brand__mark">/ folio</span>
           </Link>
           <button

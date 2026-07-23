@@ -190,12 +190,22 @@ button {
 
 .brand {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
   font-size: 14px;
   letter-spacing: 0.04em;
   color: #fff;
+}
+
+.brand_logo {
+  max-width: 40px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .brand__mark {
@@ -245,11 +255,9 @@ button {
   transition: opacity 0.45s ease, visibility 0.45s;
 
   /* faint radial lift so the flat black has depth */
-  background-image: radial-gradient(
-    120% 80% at 50% 0%,
-    rgba(234, 84, 19, 0.06) 0%,
-    transparent 60%
-  );
+  background-image: radial-gradient(120% 80% at 50% 0%,
+      rgba(234, 84, 19, 0.06) 0%,
+      transparent 60%);
 
   &.is-open {
     opacity: 1;
@@ -287,10 +295,13 @@ button {
   /* staggered reveal on open */
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.5s ease,
+  transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   @for $i from 1 through 6 {
-    &:nth-child(#{$i}) { transition-delay: #{0.04 + $i * 0.05}s; }
+    &:nth-child(#{$i}) {
+      transition-delay: #{0.04 + $i * 0.05}s;
+    }
   }
 }
 
@@ -355,15 +366,29 @@ button {
     color: var(--fg);
     padding-left: clamp(12px, 1.6vw, 24px);
 
-    .menu-link__num { color: var(--accent); }
-    .menu-link__arrow { opacity: 1; transform: translateX(0); }
-    .menu-link__meta { color: var(--fg-muted); }
+    .menu-link__num {
+      color: var(--accent);
+    }
+
+    .menu-link__arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .menu-link__meta {
+      color: var(--fg-muted);
+    }
   }
 }
 
 /* dim the siblings while hovering one item (editorial focus) */
-.menu-list:hover .menu-link:not(:hover) { color: var(--fg-faint); }
-.menu-list:hover .menu-link:not(:hover) .menu-link__meta { opacity: 0.5; }
+.menu-list:hover .menu-link:not(:hover) {
+  color: var(--fg-faint);
+}
+
+.menu-list:hover .menu-link:not(:hover) .menu-link__meta {
+  opacity: 0.5;
+}
 
 .menu-foot {
   max-width: var(--maxw);
@@ -380,7 +405,10 @@ button {
 
   a {
     transition: color 0.3s ease;
-    &:hover { color: var(--accent); }
+
+    &:hover {
+      color: var(--accent);
+    }
   }
 }
 
