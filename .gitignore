@@ -1,6 +1,9 @@
 # 依賴套件
 node_modules
 
+# 建置輸出（部署由 `npm run deploy` 透過 gh-pages 分支處理，無需版控）
+dist
+
 # 環境變數
 .env
 .env.local

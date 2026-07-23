@@ -72,7 +72,9 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   letter-spacing: 0.01em;
-  overflow-x: hidden;
+  /* clip（而非 hidden）可擋住水平捲動，又不會建立捲動容器、
+     不會破壞 .work-sticky 的 position: sticky。 */
+  overflow-x: clip;
 }
 
 ol,
@@ -494,6 +496,68 @@ button {
 /* ============================================================
    02 — Selected Work (numbered project index)
    ============================================================ */
+
+/* Pinned scroll container: stays pinned while projects reveal one by one.
+   Height = one viewport + one step per project (--work-steps). */
+.work-scroll {
+  position: relative;
+  height: calc(100vh + var(--work-steps, 4) * 62vh);
+}
+
+.work-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* 內層以 translateY 移動來置中展開項，超出視窗的部分裁掉 */
+  overflow: hidden;
+}
+
+.work-inner {
+  width: 100%;
+  padding-bottom: 0;
+  /* offsetTop 以此為基準；transform 平滑滑動到置中位置 */
+  position: relative;
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 左側垂直進度條 —— 釘在 sticky 層（不隨內容位移），與 .container 同寬置中，
+   使其左緣對齊 project-index 左緣 */
+.work-progress-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+.work-progress {
+  position: absolute;
+  left: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: min(62vh, 460px);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.work-progress__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleY(var(--work-progress, 0));
+  transform-origin: top center;
+  transition: transform 0.15s linear;
+}
+
 .project-index {
   border-top: 1px solid var(--line);
 }
@@ -502,12 +566,27 @@ button {
   border-bottom: 1px solid var(--line);
 }
 
+/* Accessibility: no scroll-jacking when reduced motion is requested —
+   fall back to a normal (non-pinned) list where hover opens each project. */
+@media (prefers-reduced-motion: reduce) {
+  .work-scroll {
+    height: auto;
+  }
+
+  .work-sticky {
+    position: static;
+    min-height: 0;
+    display: block;
+  }
+}
+
 .project__link {
   display: block;
   padding: clamp(20px, 3vw, 34px) 0;
   transition: padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:hover {
+  &:hover,
+  .project.is-open & {
     padding-left: 20px;
 
     .project__title {
