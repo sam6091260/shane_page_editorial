@@ -21,7 +21,7 @@ function About() {
 					<br />
 					FOCUS — Graphic Design
 					<br />
-					BASE — Taipei, Taiwan
+					BASE — New Taipei, Taiwan
 					<br />
 					STATUS — Open to work
 				</div>

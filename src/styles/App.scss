@@ -418,12 +418,53 @@ button {
    01 — Hero / Signal
    ============================================================ */
 .hero {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-top: 120px;
   padding-bottom: 64px;
+
+  /* hero 內容（標題等）需疊在影片與遮罩之上 */
+  >.section-head,
+  >.hero__body,
+  >.hero__foot {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+/* 背景影片：固定於視窗，不論捲動到哪都襯在所有內容後方 */
+.hero__video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2; /* 在暗色 canvas 之上、所有內容之下 */
+  /* 壓低亮度，讓它退為背景質感 */
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* 暗色遮罩：同樣固定，確保各區塊文字可讀 */
+.hero__scrim {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg,
+      rgba(11, 11, 12, 0.9) 0%,
+      rgba(11, 11, 12, 0.55) 45%,
+      rgba(11, 11, 12, 0.75) 100%),
+    linear-gradient(180deg,
+      rgba(11, 11, 12, 0.6) 0%,
+      rgba(11, 11, 12, 0.2) 35%,
+      rgba(11, 11, 12, 0.85) 100%);
 }
 
 .hero__eyebrow {
@@ -435,6 +476,13 @@ button {
   margin-bottom: 28px;
 }
 
+/* 讓 --spot（光斑濃淡）可平滑過渡的自訂屬性 */
+@property --spot {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
 .hero__title {
   font-family: var(--font-display);
   font-size: clamp(64px, 16vw, 240px);
@@ -442,6 +490,36 @@ button {
   letter-spacing: -0.02em;
   text-transform: uppercase;
   margin-bottom: clamp(32px, 5vw, 56px);
+
+  /* 游標互動：橘色實心色塊在文字筆畫內跟隨游標、帶拖曳感 --------- */
+  --mx: -300px; /* 游標 X（相對標題），由 JS 更新 */
+  --my: -300px; /* 游標 Y */
+  --bw: 160px; /* 色塊寬（依移動速度沿方向拉伸） */
+  --bh: 160px; /* 色塊高 */
+  --spot: 0; /* 色塊濃淡：0 隱藏、1 顯示 */
+
+  width: max-content;
+  max-width: 100%;
+  cursor: default;
+
+  /* 上層：跟隨游標的橘色實心色塊；下層：原本的字色 */
+  background-image: linear-gradient(rgb(234 84 19 / var(--spot)),
+      rgb(234 84 19 / var(--spot))),
+    linear-gradient(var(--fg), var(--fg));
+  background-repeat: no-repeat;
+  background-size: var(--bw) var(--bh), 100% 100%;
+  /* 讓色塊以游標為中心 */
+  background-position: calc(var(--mx) - var(--bw) / 2) calc(var(--my) - var(--bh) / 2),
+    0 0;
+
+  /* 只讓背景顯示在文字筆畫內 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  /* 進入／離開時色塊淡入淡出 */
+  transition: --spot 0.4s ease;
 }
 
 .hero__statement {
@@ -1066,6 +1144,10 @@ footer {
 
   .project__media img {
     max-height: 260px;
+  }
+
+  .work-progress-rail {
+    left: -24px;
   }
 
   .footer-top {
