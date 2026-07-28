@@ -435,8 +435,8 @@ button {
   }
 }
 
-/* 背景影片：固定於視窗，不論捲動到哪都襯在所有內容後方 */
-.hero__video {
+/* 全站背景影片：固定於視窗，跨所有頁面都襯在內容後方 */
+.site-video {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -448,8 +448,8 @@ button {
   pointer-events: none;
 }
 
-/* 暗色遮罩：同樣固定，確保各區塊文字可讀 */
-.hero__scrim {
+/* 暗色遮罩：同樣固定，確保各頁文字可讀 */
+.site-scrim {
   position: fixed;
   inset: 0;
   width: 100%;

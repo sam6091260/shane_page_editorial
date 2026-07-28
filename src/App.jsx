@@ -12,6 +12,7 @@ import React, { useEffect, useRef, lazy, Suspense, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Loading from "./components/Loading";
 import CustomCursor from "./components/CustomCursor";
+import heroVideo from "./assets/hero_video.mp4";
 
 const Work = lazy(() => import("./components/Work"));
 const Nav = lazy(() => import("./components/Nav"));
@@ -101,12 +102,27 @@ function App() {
 			window.removeEventListener("scroll", handleScroll);
 		};
 	}, [location.pathname]);
-	
 
-	
+
+
 	return (
 		<Suspense fallback={<div><Loading /></div>}>
 			<CustomCursor />
+			{/* 全站固定背景影片 ＋ 暗色遮罩：置於 Routes 之外，跨所有頁面持續襯底 */}
+			<video
+				className="site-video"
+				autoPlay
+				loop
+				muted
+				playsInline
+				preload="metadata"
+				aria-hidden="true"
+				poster={`${import.meta.env.BASE_URL}hero-poster.jpg`}
+			>
+				<source src={heroVideo} type="video/mp4" />
+			</video>
+			<div className="site-scrim" aria-hidden="true" />
+
 			<Nav activeSection={activeSection} />
 
 			<Routes>

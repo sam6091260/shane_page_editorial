@@ -4,8 +4,7 @@
  *   mono 眉標（職稱）＋ 大字名字標題 ＋ 一句定位陳述，
  *   底部為 mono 的捲動提示與座標資訊。
  */
-import React, { useEffect, useRef } from "react";
-import heroVideo from "../assets/hero_video.mp4";
+import { useEffect, useRef } from "react";
 
 /** Landing — 首頁英雄區塊，不接受任何 props。 */
 function Landing() {
@@ -81,22 +80,6 @@ function Landing() {
 
 	return (
 		<section className="hero container section" id="index">
-			{/* 背景影片（設計元素 × 建築攝影穿插）＋暗色遮罩，確保文字可讀 */}
-			<video
-				className="hero__video"
-				autoPlay
-				loop
-				muted
-				playsInline
-				preload="metadata"
-				aria-hidden="true"
-				poster={`${import.meta.env.BASE_URL}hero-poster.jpg`}
-			>
-				{/* <source src={`${import.meta.env.BASE_URL}hero-bg.webm`} type="video/webm" /> */}
-				<source src={heroVideo} type="video/mp4" />
-			</video>
-			<div className="hero__scrim" aria-hidden="true" />
-
 			<div className="section-head">
 				<span className="section-head__index">(01)</span>
 				<span className="section-head__label">Signal</span>
