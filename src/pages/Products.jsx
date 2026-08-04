@@ -1,25 +1,30 @@
 /**
  * @file Products.jsx
- * @description 作品詳情頁面組件。根據路由參數 :key 從 PRODUCT_DATA 取得對應作品資料，
- *   展示封面圖、detail 圖組（支援單張與並排 postTwo 樣式），
- *   並整合 Lightbox 燈箱供圖片放大瀏覽。
- *   支援從 Gallery 或首頁進入，並正確返回來源頁面。
+ * @description 作品詳情頁。以圖片為主體：極簡的標題與後設資料在上，
+ *   下方是連續的大圖序列（單張滿版、或兩張並排），點擊任一張以 Lightbox 放大。
+ *   底部提供「下一件作品」導覽，讓瀏覽動線留在作品之間。
+ *
+ *   支援從首頁或 Gallery 進入，返回時回到來源頁。
  */
-import finger from "../assets/detail/point_right.png";
-import back from "../assets/detail/back_page.png";
 import "../styles/Detail.scss";
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import "aos/dist/aos.css";
 import { PRODUCT_DATA } from "../../constants";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 
+/** Lightbox 關閉時的索引值。用 -1 而非 null，才能直接以 index >= 0 判斷開闔 */
+const CLOSED = -1;
+
 /**
- * 將圖片陣列中連續的 postTwo 圖片兩兩配對成群組，其餘單獨呈現。
- * @param {Array} images - selectedProduct.images
- * @returns {Array} - 每個元素為 { type: 'single'|'pair', images: [...] }
+ * 把連續兩張 postTwo 配成一組並排，其餘各自單張滿版。
+ *
+ * 傳入的元素必須已帶 index（在整份圖片序列中的位置），
+ * 分組後才能正確對應 Lightbox 的投影片編號。
+ *
+ * @param {Array<{index: number, style?: string}>} images
+ * @returns {Array<{type: 'single'|'pair', images: Array}>}
  */
 function groupImages(images) {
 	const groups = [];
@@ -27,7 +32,7 @@ function groupImages(images) {
 	while (i < images.length) {
 		const current = images[i];
 		const next = images[i + 1];
-		if (current.style === "postTwo" && next && next.style === "postTwo") {
+		if (current.style === "postTwo" && next?.style === "postTwo") {
 			groups.push({ type: "pair", images: [current, next] });
 			i += 2;
 		} else {
@@ -38,127 +43,198 @@ function groupImages(images) {
 	return groups;
 }
 
+/** Products — 作品詳情頁，不接受任何 props（資料由路由參數 :key 決定）。 */
 const Products = () => {
 	const { key } = useParams();
 	const location = useLocation();
 	const navigate = useNavigate();
-	const fromGallery = location.state?.from === 'gallery';
+	const fromGallery = location.state?.from === "gallery";
 
-	const [selectedProduct, setSelectedProduct] = useState({
-		title: "",
-		category: "",
-		customer: "",
-		homeImages: [],
-		images: [],
-	});
-	const [open, setOpen] = React.useState(false);
-	const allImages = [...selectedProduct.homeImages, ...selectedProduct.images];
+	// 直接由路由參數推導，不另存 state。
+	// 原本用 useState + useEffect 同步這份資料，除了多一次 render 之外，
+	// 遇到不存在的 key 時會把 undefined 寫進 state，下一行解構就整頁白畫面。
+	const product = PRODUCT_DATA.find((p) => p.key === key);
 
+	// 目前展開的投影片索引；CLOSED 表示關閉
+	const [slide, setSlide] = useState(CLOSED);
+	const galleryRef = useRef(null);
+
+	// 首圖與詳情圖串成單一序列並標上索引 —— Lightbox 的投影片順序、
+	// 以及點擊哪張就從哪張打開，都依賴這個索引。
+	const shots = useMemo(() => {
+		if (!product) return [];
+		return [...product.homeImages, ...product.images].map((img, index) => ({
+			...img,
+			index,
+		}));
+	}, [product]);
+
+	const blocks = useMemo(() => groupImages(shots), [shots]);
+
+	// 切換作品時回到頂部，並收起可能還開著的 Lightbox
 	useEffect(() => {
-		setSelectedProduct(PRODUCT_DATA.find((product) => product.key === key));
 		window.scrollTo(0, 0);
+		setSlide(CLOSED);
 	}, [key]);
 
+	// 圖片進場：捲入視野才淡入。
+	// 原本用 AOS，但整個專案只有這一頁在用它 —— 為了一個淡入效果載入
+	// 一整套函式庫並不划算，改用與 ScrollRail、Form 相同的 IntersectionObserver。
+	useEffect(() => {
+		const root = galleryRef.current;
+		if (!root) return;
 
-	const handleBack = () => {
-		if (fromGallery) {
-			navigate('/gallery');
-		} else {
-			navigate('/');
+		const reduceMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)"
+		).matches;
+		const figures = root.querySelectorAll(".detail__figure");
+
+		if (reduceMotion) {
+			figures.forEach((el) => el.classList.add("is-in"));
+			return;
 		}
-	};
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) return;
+					entry.target.classList.add("is-in");
+					io.unobserve(entry.target); // 進場只播一次，播完就不再觀察
+				});
+			},
+			{ rootMargin: "0px 0px -12% 0px" }
+		);
+		figures.forEach((el) => io.observe(el));
+		return () => io.disconnect();
+	}, [key]);
+
+	const handleBack = () => navigate(fromGallery ? "/gallery" : "/");
+
+	// 不存在的 key 不該讓整頁掛掉
+	if (!product) {
+		return (
+			<main className="container detail detail--missing">
+				<p className="detail__missing-index">(404)</p>
+				<h1 className="detail__title">Project not found</h1>
+				<Link className="detail__back-link" to="/">
+					← Back to index
+				</Link>
+			</main>
+		);
+	}
+
+	const order = PRODUCT_DATA.indexOf(product);
+	const next = PRODUCT_DATA[(order + 1) % PRODUCT_DATA.length];
+
+	/**
+	 * 單張圖片。包在 <button> 而非直接綁 onClick 於 <img> ——
+	 * 後者鍵盤無法聚焦也無法觸發，等於這頁的放大功能只有滑鼠使用者能用。
+	 *
+	 * @param {{shot: object, eager: boolean}} props
+	 */
+	const Shot = ({ shot, eager }) => (
+		<button
+			type="button"
+			className="detail__shot"
+			onClick={() => setSlide(shot.index)}
+			aria-label={`放大檢視 ${product.title} 第 ${shot.index + 1} 張，共 ${shots.length} 張`}
+		>
+			<img
+				src={shot.src}
+				alt={`${product.title}（圖 ${shot.index + 1}）`}
+				// width / height 讓瀏覽器在圖片下載前就依比例預留空間，消除版面位移
+				width={shot.w}
+				height={shot.h}
+				// 首圖在首屏，優先下載；其餘延後到接近視野才載
+				loading={eager ? "eager" : "lazy"}
+				fetchpriority={eager ? "high" : "auto"}
+				decoding="async"
+				draggable="false"
+			/>
+		</button>
+	);
 
 	return (
-		<>
+		<main className="detail">
 			<div className="container">
-				<div className="back">
-					<div onClick={handleBack} style={{ cursor: 'pointer' }}>
-						<img src={back} alt="back" />
-					</div>
-				</div>
-				<div className="intro">
-					<div className="introLeft">
-						<h2>Hey! Check this out! </h2>
-						<div className="animate_right">
-							<img src={finger} alt="finger" className="point_right" />
+				<button type="button" className="detail__back-link" onClick={handleBack}>
+					← {fromGallery ? "Gallery" : "Index"}
+				</button>
+
+				<header className="detail__head">
+					<span className="detail__index">
+						({String(order + 1).padStart(2, "0")})
+					</span>
+					<h1 className="detail__title">{product.title}</h1>
+
+					{/* dl 而非 ul：原本標籤與內容是彼此無關的並列 <li>，
+					    輔助技術會讀成六個獨立項目，讀不出「Client 對應某某」的關係。 */}
+					<dl className="detail__meta">
+						<div className="detail__meta-row">
+							<dt>Category</dt>
+							<dd>{product.category}</dd>
 						</div>
-					</div>
-					<div className="introRight">
-						<ul>
-							<li className="titleH2">{selectedProduct.title}</li>
-							<li>{selectedProduct.category}</li>
-							<li>Client</li>
-							<li className="title">{selectedProduct.customer}</li>
-							<li>Designer</li>
-							<li className="title">
-								<a target="_blank" href="https://www.instagram.com/__ssshane/">
-									shane
+						<div className="detail__meta-row">
+							<dt>Client</dt>
+							<dd>{product.customer}</dd>
+						</div>
+						<div className="detail__meta-row">
+							<dt>Designer</dt>
+							<dd>
+								<a
+									href="https://www.instagram.com/__ssshane/"
+									target="_blank"
+									rel="noreferrer"
+								>
+									Shane Lin ↗
 								</a>
-							</li>
-						</ul>
-					</div>
+							</dd>
+						</div>
+						<div className="detail__meta-row">
+							<dt>Frames</dt>
+							<dd>{String(shots.length).padStart(2, "0")}</dd>
+						</div>
+					</dl>
+				</header>
+
+				<div className="detail__gallery" ref={galleryRef}>
+					{blocks.map((group) =>
+						group.type === "pair" ? (
+							<div className="detail__figure detail__pair" key={group.images[0].id}>
+								{group.images.map((shot) => (
+									<Shot key={shot.id} shot={shot} eager={false} />
+								))}
+							</div>
+						) : (
+							<div className="detail__figure" key={group.images[0].id}>
+								<Shot shot={group.images[0]} eager={group.images[0].index === 0} />
+							</div>
+						)
+					)}
 				</div>
 
-				<div className="post">
-					{selectedProduct.homeImages.map((image, idx) => {
-						const delay = 150 + 50 * idx;
-						return (
-							<img
-								key={image.id}
-								src={image.src}
-								alt="image"
-								data-aos="fade-down"
-								data-aos-delay={delay}
-								onClick={() => setOpen(true)}
-							/>
-						);
-					})}
-
-					{groupImages(selectedProduct.images).map((group, idx) => {
-						const delay = 200 + 50 * (idx + 1);
-						if (group.type === "pair") {
-							return (
-								<div key={group.images[0].id} className="postTwo">
-									{group.images.map((img) => (
-										<img
-											key={img.id}
-											src={img.src}
-											alt="image"
-											data-aos="fade-down"
-											data-aos-delay={delay}
-											onClick={() => setOpen(true)}
-										/>
-									))}
-								</div>
-							);
-						}
-						return (
-							<img
-								key={group.images[0].id}
-								src={group.images[0].src}
-								alt="image"
-								data-aos="fade-down"
-								data-aos-delay={delay}
-								onClick={() => setOpen(true)}
-							/>
-						);
-					})}
-				</div>
-
-				<Lightbox
-					open={open}
-					close={() => setOpen(false)}
-					slides={allImages.map((image) => ({ src: image.src }))}
-					plugins={[Zoom]}
-				/>
-
-				<div className="meet">
-					<Link target="_blank" to="https://www.instagram.com/__ssshane/">
-						<h3>" Meet Me "</h3>
+				<nav className="detail__next" aria-label="Next project">
+					<span className="detail__next-cap">Next project</span>
+					<Link className="detail__next-link" to={`/detail/${next.key}`}>
+						{next.title}
+						<span aria-hidden="true"> →</span>
 					</Link>
-				</div>
+				</nav>
 			</div>
-		</>
+
+			<Lightbox
+				open={slide >= 0}
+				index={slide < 0 ? 0 : slide}
+				close={() => setSlide(CLOSED)}
+				slides={shots.map((shot) => ({
+					src: shot.src,
+					width: shot.w,
+					height: shot.h,
+					alt: `${product.title}（圖 ${shot.index + 1}）`,
+				}))}
+				plugins={[Zoom]}
+			/>
+		</main>
 	);
 };
 

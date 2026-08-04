@@ -13,7 +13,6 @@
   "dependencies": {
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.18.0",
-    "aos": "^2.3.4",
     "axios": "^1.6.2",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.302.0",
