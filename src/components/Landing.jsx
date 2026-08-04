@@ -4,12 +4,130 @@
  *   mono 眉標（職稱）＋ 大字名字標題 ＋ 一句定位陳述，
  *   底部為 mono 的捲動提示與座標資訊。
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/**
+ * 輪播的定位陳述。每句拆成數段，accent: true 的段落會套用強調色。
+ *
+ * ⚠ 這三句的文案請自行改寫 —— 第一句沿用原本的內容，後兩句是我按站上語氣
+ * 補的草稿。長度盡量維持相近：打字過程中行數若跳動，整個 hero 會上下抖，
+ * 靠 .hero__statement 的 min-height 只能吸收到一定程度。
+ */
+const STATEMENTS = [
+	[
+		{
+			text: "I shape product thinking, visual direction and front-end execution into working systems — ",
+		},
+		{ text: "from first idea to working form.", accent: true },
+	],
+	[
+		{
+			text: "I design brand systems and build the interfaces they live in — ",
+		},
+		{ text: "one continuous line, end to end.", accent: true },
+	],
+	[
+		{
+			text: "I care less about how something looks in a mockup — ",
+		},
+		{ text: "and more about how it holds up in production.", accent: true },
+	],
+];
+
+const TYPE_MS = 26; // 每個字元的間隔
+const DELETE_MS = 12; // 刪除比輸入快，回頭的過程不該讓人等
+const HOLD_MS = 2800; // 打完後的停留，要夠讀完一句
+const CLEAR_MS = 480; // 清空到下一句開始之間的空拍
+
+/** 各句的總字元數，供打字進度計數 */
+const LENGTHS = STATEMENTS.map((segs) =>
+	segs.reduce((sum, s) => sum + s.text.length, 0)
+);
+
+/**
+ * 依已顯示的字元數，把整句裁切成部分顯示的分段。
+ * 逐段扣除額度，讓截斷點能正確落在任何一段之中。
+ *
+ * @param {{text: string, accent?: boolean}[]} segments
+ * @param {number} shown - 已顯示的字元總數
+ */
+function sliceSegments(segments, shown) {
+	let left = shown;
+	return segments.map((s) => {
+		const take = Math.max(0, Math.min(s.text.length, left));
+		left -= take;
+		return { ...s, text: s.text.slice(0, take) };
+	});
+}
 
 /** Landing — 首頁英雄區塊，不接受任何 props。 */
 function Landing() {
 	// hero__title 的游標互動：橘色光斑在文字筆畫內跟隨游標流動
 	const titleRef = useRef(null);
+
+	const reduceMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)"
+	).matches;
+
+	// 打字機狀態：i = 第幾句、shown = 已顯示字元數、phase = 輸入中／刪除中。
+	// 三個值合成一個物件，讓每次推進只觸發一次 re-render。
+	// 「減少動態效果」時直接停在第一句的完整狀態，不進迴圈。
+	const [type, setType] = useState(() =>
+		reduceMotion
+			? { i: 0, shown: LENGTHS[0], phase: "hold" }
+			: { i: 0, shown: 0, phase: "typing" }
+	);
+
+	// 捲離首屏就暫停 —— 否則使用者在頁尾閱讀時，這裡仍以每 26ms 一次的
+	// 頻率持續 setState。與 PracticeCylinder 停掉 frameloop 是同一個考量。
+	const statementRef = useRef(null);
+	const [inView, setInView] = useState(true);
+
+	useEffect(() => {
+		const el = statementRef.current;
+		if (!el) return;
+		const io = new IntersectionObserver(([entry]) =>
+			setInView(entry.isIntersecting)
+		);
+		io.observe(el);
+		return () => io.disconnect();
+	}, []);
+
+	// 自我排程的打字迴圈：每次 state 變動就依當前階段排下一次推進。
+	// 用遞迴的 setTimeout 而非 setInterval —— 各階段的間隔不同，
+	// 而且 cleanup 能保證同時只有一個計時器在跑。
+	useEffect(() => {
+		if (reduceMotion || !inView) return;
+
+		const total = LENGTHS[type.i];
+		let delay;
+		let next;
+
+		if (type.phase === "typing") {
+			if (type.shown < total) {
+				delay = TYPE_MS;
+				next = { ...type, shown: type.shown + 1 };
+			} else {
+				delay = HOLD_MS;
+				next = { ...type, phase: "deleting" };
+			}
+		} else {
+			if (type.shown > 0) {
+				delay = DELETE_MS;
+				next = { ...type, shown: type.shown - 1 };
+			} else {
+				delay = CLEAR_MS;
+				next = {
+					i: (type.i + 1) % STATEMENTS.length,
+					shown: 0,
+					phase: "typing",
+				};
+			}
+		}
+
+		const timer = setTimeout(() => setType(next), delay);
+		return () => clearTimeout(timer);
+	}, [type, reduceMotion, inView]);
 
 	useEffect(() => {
 		const el = titleRef.current;
@@ -89,9 +207,24 @@ function Landing() {
 			<div className="hero__body">
 				<p className="hero__eyebrow">Front End Developer — Graphic Designer</p>
 				<h1 className="hero__title" ref={titleRef}>Shane Lin</h1>
-				<p className="hero__statement">
-					I shape product thinking, visual direction and front-end execution into
-					working systems — <span className="accent">from first idea to working form.</span>
+				{/* 動畫中的文字對螢幕閱讀器只是一串不斷變動的殘句，
+				    所以整段標為 aria-hidden，另備一份完整的靜態文字在下方。 */}
+				<p className="hero__statement" ref={statementRef} aria-hidden="true">
+					{sliceSegments(STATEMENTS[type.i], type.shown).map((s, i) =>
+						s.accent ? (
+							<span className="accent" key={i}>
+								{s.text}
+							</span>
+						) : (
+							<span key={i}>{s.text}</span>
+						)
+					)}
+					<span className="type-caret" />
+				</p>
+
+				{/* 給輔助技術讀的完整版本 */}
+				<p className="sr-only">
+					{STATEMENTS.map((segs) => segs.map((s) => s.text).join("")).join(" ")}
 				</p>
 			</div>
 

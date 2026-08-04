@@ -442,7 +442,8 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -2; /* 在暗色 canvas 之上、所有內容之下 */
+  z-index: -2;
+  /* 在暗色 canvas 之上、所有內容之下 */
   /* 壓低亮度，讓它退為背景質感 */
   opacity: 0.55;
   pointer-events: none;
@@ -492,11 +493,16 @@ button {
   margin-bottom: clamp(32px, 5vw, 56px);
 
   /* 游標互動：橘色實心色塊在文字筆畫內跟隨游標、帶拖曳感 --------- */
-  --mx: -300px; /* 游標 X（相對標題），由 JS 更新 */
-  --my: -300px; /* 游標 Y */
-  --bw: 160px; /* 色塊寬（依移動速度沿方向拉伸） */
-  --bh: 160px; /* 色塊高 */
-  --spot: 0; /* 色塊濃淡：0 隱藏、1 顯示 */
+  --mx: -300px;
+  /* 游標 X（相對標題），由 JS 更新 */
+  --my: -300px;
+  /* 游標 Y */
+  --bw: 160px;
+  /* 色塊寬（依移動速度沿方向拉伸） */
+  --bh: 160px;
+  /* 色塊高 */
+  --spot: 0;
+  /* 色塊濃淡：0 隱藏、1 顯示 */
 
   width: max-content;
   max-width: 100%;
@@ -528,10 +534,51 @@ button {
   line-height: 1.35;
   color: var(--fg);
   font-weight: 300;
+  /* 預留四行高度：打字過程中行數會增減，沒有這個下限整個 hero 會上下抖。
+     單位用 em，會跟著上方的 clamp 字級一起縮放。 */
+  min-height: calc(4 * 1.35em);
 
   .accent {
     color: var(--accent);
   }
+}
+
+/* 打字游標：實心色塊而非細線，呼應 hero__title 那個橘色光斑的語彙 */
+.type-caret {
+  display: inline-block;
+  width: 0.42em;
+  height: 0.86em;
+  margin-left: 0.1em;
+  vertical-align: -0.06em;
+  background: var(--accent);
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* 只讓輔助技術讀到，視覺上完全不佔位。
+   不用 display: none —— 那樣螢幕閱讀器也會跳過。 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .hero__foot {
@@ -656,6 +703,17 @@ button {
     min-height: 0;
     display: block;
   }
+
+  /* 打字迴圈在 JS 端已停在第一句的完整狀態，閃爍的游標也一併收起 */
+  .type-caret {
+    display: none;
+  }
+
+  /* JS 端已直接以展開狀態初始化，這裡把過場也一併移除 */
+  .contact__head-reveal,
+  .contact__head-reveal>span {
+    transition: none;
+  }
 }
 
 .project__link {
@@ -768,7 +826,7 @@ button {
 }
 
 /* ============================================================
-   03 — Practice / System (restrained marquee)
+   03 — Practice / System (3D word cylinder)
    ============================================================ */
 .practice__lead {
   max-width: 720px;
@@ -776,65 +834,22 @@ button {
   line-height: 1.4;
   font-weight: 300;
   color: var(--fg);
-  margin-bottom: clamp(48px, 7vw, 88px);
+  margin-bottom: clamp(8px, 7vw, 16px);
 }
 
-.marquee {
-  position: relative;
-  overflow: hidden;
-  border-top: 1px solid var(--line);
+/* 3D 文字圓柱的容器。
+   沿用原跑馬燈的上下細線，讓 3D 區塊仍收在既有的編輯式框線節奏裡。
+   height 必填 —— R3F 的 Canvas 會撐滿父層，父層高度為 auto 時量到 0 就不會 render。 */
+.practice-3d {
+  width: 100%;
+  height: 420px;
   border-bottom: 1px solid var(--line);
-  padding: 28px 0;
-  white-space: nowrap;
   cursor: grab;
+  /* 手機必要：否則橫向拖曳會被瀏覽器判為捲頁，收不到 pointermove */
+  touch-action: none;
 
-  &.active {
+  &.is-dragging {
     cursor: grabbing;
-  }
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.marquee__content {
-  display: inline-flex;
-  align-items: center;
-  animation: marquee 26s linear infinite;
-  will-change: transform;
-}
-
-.marquee:hover .marquee__content {
-  animation-play-state: paused;
-}
-
-.marquee__content span {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 5vw, 56px);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  color: var(--fg-faint);
-  padding: 0 28px;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: var(--fg);
-  }
-}
-
-.marquee__dot {
-  color: var(--accent);
-  font-size: 0.5em;
-  vertical-align: middle;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-33.333%);
   }
 }
 
@@ -889,6 +904,37 @@ button {
 
   .accent {
     color: var(--accent);
+  }
+}
+
+/* 括號之間的收合容器。
+   用 grid 的 0fr → 1fr 而非 max-width：0fr 會收到完全沒有寬度，
+   1fr 則展開到內容的自然寬度 —— 不需要事先知道文字有多寬，
+   換文案也不必回頭調數字。max-width 做不到這件事（得填一個猜的上限，
+   實際到達自然寬度的時間點會早於過場結束，緩動曲線就跑掉了）。 */
+.contact__head-reveal {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  /* 與 hero__title、project__link 同一條曲線，維持全站的動態語彙一致 */
+  transition: grid-template-columns 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 內層有 overflow: hidden，基線會被合成到邊框底部而錯位；
+     行高為 1 且字級相同，用 bottom 對齊就等同基線對齊。 */
+  vertical-align: bottom;
+
+  >span {
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    /* 略晚於展開起步，讓「先開再現字」的順序讀得出來 */
+    transition: opacity 0.7s ease 0.2s;
+  }
+}
+
+.contact__head.is-revealed .contact__head-reveal {
+  grid-template-columns: 1fr;
+
+  >span {
+    opacity: 1;
   }
 }
 
@@ -1076,6 +1122,140 @@ footer {
 }
 
 /* ============================================================
+   Scroll rail — 右下角捲動導航線
+   ============================================================ */
+.scroll-rail {
+  position: fixed;
+  right: var(--gutter);
+  bottom: 40px;
+  /* 低於 menu-overlay(999) 與 site-header(1000)，選單展開時自然被蓋住 */
+  z-index: 900;
+  width: 132px;
+  height: 132px;
+  pointer-events: none;
+  /* 由 JS 每幀寫入的全頁捲動進度 0~1 */
+  --rail-progress: 0;
+}
+
+/* 兩個狀態層疊在同一個角落，用透明度交叉淡入淡出。
+   若改成條件式 render，元素被卸載就沒有過場可言了。 */
+.scroll-rail__layer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-on {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.scroll-rail__index .scroll-rail__num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.scroll-rail__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--fg-faint);
+  line-height: 1;
+}
+
+/* 導航線本體：底色為整條軌道，內層填充代表已捲過的比例 */
+.scroll-rail__line {
+  position: relative;
+  width: 1px;
+  height: 72px;
+  background: var(--line);
+  /* 靠右對齊時線要落在數字的中線上，往內縮半個字寬 */
+  margin-right: 6px;
+}
+
+.scroll-rail__fill {
+  position: absolute;
+  inset: 0 0 auto 0;
+  width: 1px;
+  /* scaleY 而非改 height：只走 compositor，不觸發 layout */
+  height: 100%;
+  transform-origin: top;
+  transform: scaleY(var(--rail-progress));
+  background: var(--accent);
+}
+
+.scroll-rail__top {
+  /* is-on 時才恢復點擊，否則會擋住底下的內容 */
+  &.is-on {
+    pointer-events: auto;
+  }
+
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  text-align: right;
+  transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+  color 0.3s ease;
+
+  .scroll-rail__arrow {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    line-height: 1;
+    color: var(--accent);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+  }
+
+  &:hover {
+    .scroll-rail__arrow {
+      transform: translateY(-4px);
+    }
+
+    .scroll-rail__label {
+      color: var(--fg);
+    }
+  }
+}
+
+/* 觸控裝置沒有 hover，箭頭的位移提示無意義；縮小佔位並收起文字標籤 */
+@media (max-width: 767px) {
+  .scroll-rail {
+    right: 14px;
+    bottom: 20px;
+    width: 64px;
+    height: 96px;
+  }
+
+  .scroll-rail__line {
+    height: 44px;
+  }
+
+  .scroll-rail__index .scroll-rail__label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .scroll-rail__layer,
+  .scroll-rail__top .scroll-rail__arrow {
+    transition: none;
+  }
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 900px) {
@@ -1118,6 +1298,10 @@ footer {
   .hero {
     min-height: 88vh;
     padding-top: 96px;
+  }
+
+  .practice-3d {
+    height: 280px;
   }
 
   .menu-cap {

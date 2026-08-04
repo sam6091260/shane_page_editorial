@@ -1,11 +1,16 @@
 /**
  * @file Skill.jsx
  * @description 專業能力區塊（03 / Practice）。以一句方法論陳述帶出，
- *   下方為可拖曳的水平跑馬燈，循環展示各項設計與開發能力。
+ *   下方為可拖曳的 3D 文字圓柱，循環展示各項設計與開發能力。
+ *
+ *   圓柱（PracticeCylinder）以 lazy 載入，把 three.js 拆出主包 ——
+ *   捲到此區塊前不會下載。
  */
-import React, { useEffect, useRef } from "react";
+import { lazy, Suspense } from "react";
 
-/** 能力項目 — 於跑馬燈中循環展示。 */
+const PracticeCylinder = lazy(() => import("./PracticeCylinder"));
+
+/** 能力項目 — 於 3D 圓柱上循環展示。 */
 const DISCIPLINES = [
 	"User Interface Design",
 	"Graphic Design",
@@ -14,49 +19,8 @@ const DISCIPLINES = [
 	"Digital Illustration",
 ];
 
-/**
- * Skill — Practice 區塊，不接受任何 props。
- * useEffect 內綁定滑鼠拖曳事件，讓跑馬燈可水平拖曳瀏覽。
- */
+/** Skill — Practice 區塊，不接受任何 props。 */
 function Skill() {
-	const scrollRef = useRef(null);
-
-	useEffect(() => {
-		const el = scrollRef.current;
-		if (!el) return;
-
-		let isDown = false;
-		let startX;
-		let scrollLeft;
-
-		const handleMouseDown = (e) => {
-			isDown = true;
-			startX = e.pageX;
-			scrollLeft = el.scrollLeft;
-			el.classList.add("active");
-		};
-		const handleMouseMove = (e) => {
-			if (!isDown) return;
-			e.preventDefault();
-			el.scrollLeft = scrollLeft - (e.pageX - startX);
-		};
-		const handleMouseUp = () => {
-			isDown = false;
-			el.classList.remove("active");
-		};
-
-		el.addEventListener("mousedown", handleMouseDown);
-		el.addEventListener("mousemove", handleMouseMove);
-		el.addEventListener("mouseup", handleMouseUp);
-		el.addEventListener("mouseleave", handleMouseUp);
-		return () => {
-			el.removeEventListener("mousedown", handleMouseDown);
-			el.removeEventListener("mousemove", handleMouseMove);
-			el.removeEventListener("mouseup", handleMouseUp);
-			el.removeEventListener("mouseleave", handleMouseUp);
-		};
-	}, []);
-
 	return (
 		<section className="container section" id="practice">
 			<div className="section-head">
@@ -70,20 +34,10 @@ function Skill() {
 				execution held together as a single, maintainable system.
 			</p>
 
-			<div className="marquee" ref={scrollRef}>
-				<div className="marquee__content">
-					{[...Array(3)].map((_, i) => (
-						<React.Fragment key={i}>
-							{DISCIPLINES.map((d, j) => (
-								<span key={`${i}-${j}`}>
-									{d}
-									<span className="marquee__dot"> ● </span>
-								</span>
-							))}
-						</React.Fragment>
-					))}
-				</div>
-			</div>
+			{/* fallback 為 null：.practice-3d 有固定高度撐著，載入期間不會有版面跳動 */}
+			<Suspense fallback={null}>
+				<PracticeCylinder items={DISCIPLINES} />
+			</Suspense>
 		</section>
 	);
 }

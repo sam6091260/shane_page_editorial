@@ -8,15 +8,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import logo from "../assets/shhh-logo.png";
-
-/** 首頁各區塊：num 編號、name 對應區塊 id、label 顯示字、meta 右側描述。 */
-const SECTIONS = [
-  { num: "01", name: "index", label: "Index", meta: "Introduction" },
-  { num: "02", name: "work", label: "Work", meta: "Selected projects" },
-  { num: "03", name: "practice", label: "Practice", meta: "Capabilities" },
-  { num: "04", name: "about", label: "About", meta: "Profile" },
-  { num: "05", name: "contact", label: "Contact", meta: "Get in touch" },
-];
+// 與 ScrollRail 共用同一份區塊清單
+import { SECTIONS } from "../../constants/sections";
 
 /**
  * Nav — 頂部列 + 全螢幕選單

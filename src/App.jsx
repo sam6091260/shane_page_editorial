@@ -12,6 +12,7 @@ import React, { useEffect, useRef, lazy, Suspense, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Loading from "./components/Loading";
 import CustomCursor from "./components/CustomCursor";
+import ScrollRail from "./components/ScrollRail";
 import heroVideo from "./assets/hero_video.mp4";
 
 const Work = lazy(() => import("./components/Work"));
@@ -124,6 +125,8 @@ function App() {
 			<div className="site-scrim" aria-hidden="true" />
 
 			<Nav activeSection={activeSection} />
+			{/* 右下角捲動導航線：跨頁面存在，自行偵測區塊，不依賴上方的 activeSection */}
+			<ScrollRail />
 
 			<Routes>
 				<Route path="/" element={<AllComponents workRef={workRef} formRef={formRef} landingRef={landingRef} />} />
