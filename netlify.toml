@@ -1,0 +1,33 @@
+# Netlify 部署設定。
+#
+# 不需要 SPA redirect 規則 —— 本專案用的是 HashRouter（src/main.jsx），
+# 路由都在 # 之後，伺服器只會收到對 / 的請求，重新整理不會 404。
+# 若哪天改用 BrowserRouter，就必須補上 /* → /index.html 200 的 rewrite。
+#
+# base path 由 vite.config.js 依 NETLIFY 環境變數自動切換，此處不需處理。
+
+[build]
+command = "npm run build"
+publish = "dist"
+
+[build.environment]
+# 明確釘住 Node 版本。本專案仍在 Vite 4，跟著 Netlify 預設版本一路往上跳
+# 遲早會出現相依性錯誤或建置失敗 —— 釘住之後升級時機由自己決定。
+NODE_VERSION = "20"
+
+# Vite 產出的檔名都帶內容 hash，內容一變檔名就變，
+# 因此可以放心地長期快取。Netlify 預設對所有檔案都是 must-revalidate，
+# 每次瀏覽都要重新驗證 —— 對 6MB 的背景影片來說是實質的頻寬浪費。
+[[headers]]
+for = "/assets/*"
+
+[headers.values]
+cache-control = "public, max-age=31536000, immutable"
+
+# index.html 相反：絕對不能快取，否則使用者會一直拿到舊版的
+# 資源引用清單，指向已經被替換掉的 hash 檔名。
+[[headers]]
+for = "/index.html"
+
+[headers.values]
+cache-control = "public, max-age=0, must-revalidate"
