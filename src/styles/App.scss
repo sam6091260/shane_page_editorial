@@ -141,9 +141,14 @@ button {
   letter-spacing: 0.05em;
 }
 
+/* 語意上是 <h2>：搜尋引擎與螢幕閱讀器靠標題層級理解頁面架構，
+   原本用 <span> 等於整頁只有一個 h1、底下一片扁平。
+   改成 h2 後要抵銷瀏覽器預設的 margin 與粗體，外觀才與原本一致。 */
 .section-head__label {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 13px;
+  font-weight: inherit;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--fg);

@@ -84,7 +84,7 @@ function Form({ formRef }) {
 		<section className="container section" id="contact" ref={formRef}>
 			<div className="section-head">
 				<span className="section-head__index">(05)</span>
-				<span className="section-head__label">Contact</span>
+				<h2 className="section-head__label">Contact</h2>
 				<span className="section-head__meta">Let&apos;s talk</span>
 			</div>
 

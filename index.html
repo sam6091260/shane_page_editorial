@@ -2,6 +2,50 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- 允許縮放。原本帶著 maximum-scale=1.0, user-scalable=no，
+         等於把視力不好的使用者鎖在預設字級上，Lighthouse 的無障礙項目也會直接扣分。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Shane Lin — Front End Developer &amp; Graphic Designer</title>
+    <meta
+      name="description"
+      content="Shane Lin — designer-developer in New Taipei, Taiwan. Visual identity, brand systems and responsive front-ends, from the first idea through to a working form."
+    />
+    <meta name="author" content="Shane Lin" />
+    <meta name="theme-color" content="#0b0b0c" />
+
+    <!-- 站點目前同時部署在 Netlify 與 GitHub Pages，兩邊內容相同。
+         canonical 指定 Netlify 為本尊，否則 Google 會當成重複內容，
+         把權重拆散在兩個網址上。 -->
+    <link rel="canonical" href="https://design-by-shane.netlify.app/" />
+
+    <!-- Open Graph：貼連結到 LINE / Facebook / Slack 時的預覽卡。
+         這些平台的爬蟲不執行 JavaScript，只讀這份 HTML —— 少了這一段，
+         分享出去就是一條沒有圖也沒有說明的裸網址。 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Shane Lin" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://design-by-shane.netlify.app/" />
+    <meta property="og:title" content="Shane Lin — Front End Developer &amp; Graphic Designer" />
+    <meta
+      property="og:description"
+      content="Designer-developer in New Taipei, Taiwan. Visual identity, brand systems and responsive front-ends."
+    />
+    <!-- og:image 必須是絕對網址，爬蟲沒有頁面的相對路徑基準可用 -->
+    <meta property="og:image" content="https://design-by-shane.netlify.app/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Shane Lin — Front End Developer & Graphic Designer" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shane Lin — Front End Developer &amp; Graphic Designer" />
+    <meta
+      name="twitter:description"
+      content="Designer-developer in New Taipei, Taiwan. Visual identity, brand systems and responsive front-ends."
+    />
+    <meta name="twitter:image" content="https://design-by-shane.netlify.app/og-image.jpg" />
+
     <link rel="shortcut icon" href="./Slogo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,8 +57,6 @@
       href="https://db.onlinewebfonts.com/c/401b7744fffbc1cd21fc71a6c08182ee?family=Futura-Heavy"
       rel="stylesheet"
     />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Shane Lin — Front End Developer & Graphic Designer</title>
   </head>
   <body>
     <div id="root"></div>

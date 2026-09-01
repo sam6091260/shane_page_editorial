@@ -25,7 +25,7 @@ function Skill() {
 		<section className="container section" id="practice">
 			<div className="section-head">
 				<span className="section-head__index">(03)</span>
-				<span className="section-head__label">Practice</span>
+				<h2 className="section-head__label">Practice</h2>
 				<span className="section-head__meta">Capabilities</span>
 			</div>
 

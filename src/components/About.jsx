@@ -11,7 +11,7 @@ function About() {
 		<section className="container section" id="about">
 			<div className="section-head">
 				<span className="section-head__index">(04)</span>
-				<span className="section-head__label">About</span>
+				<h2 className="section-head__label">About</h2>
 				<span className="section-head__meta">Profile</span>
 			</div>
 

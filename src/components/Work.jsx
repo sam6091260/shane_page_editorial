@@ -151,7 +151,7 @@ function Work({ workRef }) {
 				<section className="container section work-inner" ref={innerRef}>
 					<div className="section-head">
 						<span className="section-head__index">(02)</span>
-						<span className="section-head__label">Selected Work</span>
+						<h2 className="section-head__label">Selected Work</h2>
 						<span className="section-head__meta">
 							{String(total).padStart(2, "0")} Projects
 						</span>

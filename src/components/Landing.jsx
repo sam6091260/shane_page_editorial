@@ -200,7 +200,7 @@ function Landing() {
 		<section className="hero container section" id="index">
 			<div className="section-head">
 				<span className="section-head__index">(01)</span>
-				<span className="section-head__label">Signal</span>
+				<h2 className="section-head__label">Signal</h2>
 				<span className="section-head__meta">Portfolio — 2024 / 25</span>
 			</div>
 
