@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  目前只列首頁一個網址。
+
+  作品詳情頁（/detail/:key）與 Gallery 走的是 HashRouter，網址長成
+  「/#/detail/fosanthos」—— # 之後的部分不會送到伺服器，搜尋引擎也不
+  當成獨立頁面，列進 sitemap 只會拿到「無法檢索」的錯誤。
+
+  等路由換成 BrowserRouter，再把各作品頁補進來。
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://design-by-shane.netlify.app/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

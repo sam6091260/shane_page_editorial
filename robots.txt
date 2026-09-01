@@ -1,0 +1,5 @@
+# 全站開放檢索。這是公開的作品集，沒有需要擋的路徑。
+User-agent: *
+Allow: /
+
+Sitemap: https://design-by-shane.netlify.app/sitemap.xml
