@@ -178,6 +178,17 @@ const Products = () => {
 							<dt>Client</dt>
 							<dd>{product.customer}</dd>
 						</div>
+						{/* 只有線上看得到成品的作品（如網站）才有 link，其餘作品不長出這一列 */}
+						{product.link && (
+							<div className="detail__meta-row">
+								<dt>Site</dt>
+								<dd>
+									<a href={product.link.href} target="_blank" rel="noreferrer">
+										{product.link.label} ↗
+									</a>
+								</dd>
+							</div>
+						)}
 						<div className="detail__meta-row">
 							<dt>Designer</dt>
 							<dd>

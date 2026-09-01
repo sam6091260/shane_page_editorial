@@ -21,6 +21,11 @@ import tumaz from "../src/assets/tumaz.jpg";
 import tumaz1 from "../src/assets/detail/tumaz1.jpg";
 import tumaz2 from "../src/assets/detail/tumaz2.jpg";
 import tumaz3 from "../src/assets/detail/tumaz3.jpg";
+import fosanthos from "../src/assets/web/web-intro.webp";
+import fosanthos1 from "../src/assets/web/web-home-hero-desktop.webp";
+import fosanthos2 from "../src/assets/web/web-home-hero-section.webp";
+import fosanthos3 from "../src/assets/web/web-blog-hero-desktop.webp";
+import fosanthos4 from "../src/assets/web/web-home-hero-form.webp";
 
 /**
  * PRODUCT_DATA — 全部作品的元資料陣列
@@ -35,11 +40,26 @@ import tumaz3 from "../src/assets/detail/tumaz3.jpg";
  *   title: string,     - 展示用的作品標題
  *   category: string,  - 設計類型（如 'Logo / Brand / Font'）
  *   customer: string,  - 客戶名稱與年份
+ *   link?: {label: string, href: string},  - 選填。線上可瀏覽的成品（如網站），詳情頁會多出一列連結
  *   homeImages: Array<{id: string, src: string, w: number, h: number}>,  - 首頁作品地圖（可多張）
  *   images: Array<{id: string, src: string, w: number, h: number, style?: 'postTwo'}>  - 詳情頁圖片（style='postTwo' 表示兩張並排組合）
  * }>}
  */
 export const PRODUCT_DATA = [
+  {
+    key: "fosanthos",
+    title: "fosanthos | 心光卉網站",
+    category: "Web Design / Front-end",
+    customer: "Fosanthos 心光卉 2026",
+    link: { label: "fosanthos.com", href: "https://fosanthos.com/" },
+    homeImages: [{ id: "fosanthos", src: fosanthos, w: 3240, h: 1080 }],
+    images: [
+      { id: "fosanthos1", src: fosanthos1, w: 1920, h: 1200 },
+      { id: "fosanthos2", src: fosanthos2, w: 1880, h: 916 },
+      { id: "fosanthos3", src: fosanthos3, w: 1920, h: 1200 },
+      { id: "fosanthos4", src: fosanthos4, w: 1878, h: 918 },
+    ],
+  },
   {
     key: "tumaz",
     title: "tumaz apparel | 像素熊設計",
