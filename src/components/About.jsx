@@ -27,15 +27,29 @@ function About() {
 				</div>
 				<div className="about__body">
 					<p>
-						I&apos;m Shane — a designer-developer working across visual identity and
-						the interfaces they live in. I care about keeping one continuous line
-						between how something looks and how it actually runs.
+						我是 Shane —— 做視覺識別，也做承載這些識別的介面。我在意的是：
+						外觀與運作之間不要斷開。
 					</p>
 					<p>
-						From logos and brand systems to responsive front-ends, my aim is the
-						same: <span className="accent">restraint, rhythm, and work that holds up</span> —
-						shaped from the first idea through to a working form.
+						從商標、品牌系統到響應式前端，目標始終一致：
+						<span className="accent">克制、節奏，以及撐得住的成品</span>
+						<br />
+						從第一個念頭開始，一路做到真正落地的形態。
 					</p>
+
+					{/* 英文版：同一段話的另一種說法，字級退到中文之下 */}
+					<div className="about__body-en">
+						<p>
+							I&apos;m Shane — a designer-developer working across visual identity and
+							the interfaces they live in. I care about keeping one continuous line
+							between how something looks and how it actually runs.
+						</p>
+						<p>
+							From logos and brand systems to responsive front-ends, my aim is the
+							same: <span className="accent">restraint, rhythm, and work that holds up</span> —
+							shaped from the first idea through to a working form.
+						</p>
+					</div>
 				</div>
 			</div>
 		</section>

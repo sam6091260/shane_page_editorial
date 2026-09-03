@@ -30,6 +30,9 @@ function Skill() {
 			</div>
 
 			<p className="practice__lead">
+				一條線做到底 —— 從產品邏輯、視覺方向到技術實作，全數歸納進一套可持續運作的系統裡。
+			</p>
+			<p className="practice__lead-en">
 				One continuous line — product logic, visual direction and technical
 				execution held together as a single, maintainable system.
 			</p>

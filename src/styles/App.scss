@@ -533,15 +533,33 @@ button {
   transition: --spot 0.4s ease;
 }
 
-.hero__statement {
+/* 中文主述句：接手原本 .hero__statement 的字級，成為視線的第一落點。
+   行高比英文寬 —— 中文字面方正，1.35 會擠在一起。 */
+.hero__statement-zh {
   max-width: 640px;
   font-size: clamp(20px, 2.6vw, 30px);
-  line-height: 1.35;
+  line-height: 1.5;
   color: var(--fg);
   font-weight: 300;
-  /* 預留四行高度：打字過程中行數會增減，沒有這個下限整個 hero 會上下抖。
+  margin-bottom: 16px;
+  /* 預留兩行：三句中文長度相近，換句時不讓下方的英文上下跳 */
+  min-height: calc(2 * 1.5em);
+
+  .accent {
+    color: var(--accent);
+  }
+}
+
+/* 英文退為第二層：字級縮小、顏色轉淡，讓它讀起來像中文底下的一行節奏 */
+.hero__statement {
+  max-width: 640px;
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.5;
+  color: var(--fg-muted);
+  font-weight: 300;
+  /* 預留三行高度：打字過程中行數會增減，沒有這個下限整個 hero 會上下抖。
      單位用 em，會跟著上方的 clamp 字級一起縮放。 */
-  min-height: calc(4 * 1.35em);
+  min-height: calc(3 * 1.5em);
 
   .accent {
     color: var(--accent);
@@ -836,9 +854,19 @@ button {
 .practice__lead {
   max-width: 720px;
   font-size: clamp(20px, 2.4vw, 28px);
-  line-height: 1.4;
+  line-height: 1.55;
   font-weight: 300;
   color: var(--fg);
+  margin-bottom: 12px;
+}
+
+/* 英文版退為第二層，與 hero 的處理一致 */
+.practice__lead-en {
+  max-width: 720px;
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.5;
+  font-weight: 300;
+  color: var(--fg-muted);
   margin-bottom: clamp(8px, 7vw, 16px);
 }
 
@@ -878,12 +906,31 @@ button {
 .about__body {
   p {
     font-size: clamp(20px, 2.4vw, 30px);
-    line-height: 1.4;
+    /* 中文字面方正，行高比原本的 1.4 再放寬一點才不會擠 */
+    line-height: 1.55;
     font-weight: 300;
     color: var(--fg);
 
     &+p {
       margin-top: 28px;
+    }
+  }
+
+  /* 英文版退為第二層，與 hero、practice 的處理一致。
+     選擇器多一層 class，特異性才蓋得過上面的 .about__body p。 */
+  .about__body-en {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+
+    p {
+      font-size: clamp(14px, 1.4vw, 18px);
+      line-height: 1.6;
+      color: var(--fg-muted);
+
+      &+p {
+        margin-top: 16px;
+      }
     }
   }
 

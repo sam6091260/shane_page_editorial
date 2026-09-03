@@ -7,31 +7,53 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * 輪播的定位陳述。每句拆成數段，accent: true 的段落會套用強調色。
+ * 輪播的定位陳述。每句同時備中英兩版，各自拆成數段，
+ * accent: true 的段落會套用強調色。
  *
- * ⚠ 這三句的文案請自行改寫 —— 第一句沿用原本的內容，後兩句是我按站上語氣
- * 補的草稿。長度盡量維持相近：打字過程中行數若跳動，整個 hero 會上下抖，
- * 靠 .hero__statement 的 min-height 只能吸收到一定程度。
+ * zh 是主述句，靜態呈現；en 逐字打出、字級較小，作為底下的一層節奏。
+ * 兩者在同一個 type.i 下切換 —— 換句的時機落在英文已刪空的空拍上，
+ * 中文接著換，不會出現中英不同句的畫面。
+ *
+ * ⚠ 文案請自行改寫。長度盡量維持相近：行數若跳動，整個 hero 會上下抖，
+ * 靠 min-height 只能吸收到一定程度（中文抓 2 行、英文抓 3 行）。
  */
 const STATEMENTS = [
-	[
-		{
-			text: "I shape product thinking, visual direction and front-end execution into working systems — ",
-		},
-		{ text: "from first idea to working form.", accent: true },
-	],
-	[
-		{
-			text: "I design brand systems and build the interfaces they live in — ",
-		},
-		{ text: "one continuous line, end to end.", accent: true },
-	],
-	[
-		{
-			text: "I care less about how something looks in a mockup — ",
-		},
-		{ text: "and more about how it holds up in production.", accent: true },
-	],
+	{
+		zh: [
+			{ text: "從產品思維到視覺方向與前端實作，" },
+			{ text: "收斂成一套跑得動、也養得起的系統。", accent: true },
+		],
+		en: [
+			{
+				text: "I shape product thinking, visual direction and front-end execution into working systems — ",
+			},
+			{ text: "from first idea to working form.", accent: true },
+		],
+	},
+	{
+		zh: [
+			{ text: "我設計品牌系統，" },
+			{ text: "也親手將它們落地實作為使用者介面。", accent: true },
+		],
+		en: [
+			{
+				text: "I design brand systems and build the interfaces they live in — ",
+			},
+			{ text: "one continuous line, end to end.", accent: true },
+		],
+	},
+	{
+		zh: [
+			{ text: "比起設計稿上的美觀，" },
+			{ text: "我更在意實際上線後的穩定度與耐用度。", accent: true },
+		],
+		en: [
+			{
+				text: "I care less about how something looks in a mockup — ",
+			},
+			{ text: "and more about how it holds up in production.", accent: true },
+		],
+	},
 ];
 
 const TYPE_MS = 26; // 每個字元的間隔
@@ -39,10 +61,27 @@ const DELETE_MS = 12; // 刪除比輸入快，回頭的過程不該讓人等
 const HOLD_MS = 2800; // 打完後的停留，要夠讀完一句
 const CLEAR_MS = 480; // 清空到下一句開始之間的空拍
 
-/** 各句的總字元數，供打字進度計數 */
-const LENGTHS = STATEMENTS.map((segs) =>
-	segs.reduce((sum, s) => sum + s.text.length, 0)
+/** 各句英文的總字元數，供打字進度計數 */
+const LENGTHS = STATEMENTS.map((stmt) =>
+	stmt.en.reduce((sum, s) => sum + s.text.length, 0)
 );
+
+/**
+ * 把分段陣列輸出成帶強調色的 span。中英兩版共用同一套渲染。
+ *
+ * @param {{text: string, accent?: boolean}[]} segments
+ */
+function renderSegments(segments) {
+	return segments.map((s, i) =>
+		s.accent ? (
+			<span className="accent" key={i}>
+				{s.text}
+			</span>
+		) : (
+			<span key={i}>{s.text}</span>
+		)
+	);
+}
 
 /**
  * 依已顯示的字元數，把整句裁切成部分顯示的分段。
@@ -207,24 +246,23 @@ function Landing() {
 			<div className="hero__body">
 				<p className="hero__eyebrow">Front End Developer — Graphic Designer</p>
 				<h1 className="hero__title" ref={titleRef}>Shane Lin</h1>
+				{/* 主述句：中文靜態呈現，英文在下方逐字打出 */}
+				<p className="hero__statement-zh">
+					{renderSegments(STATEMENTS[type.i].zh)}
+				</p>
+
 				{/* 動畫中的文字對螢幕閱讀器只是一串不斷變動的殘句，
 				    所以整段標為 aria-hidden，另備一份完整的靜態文字在下方。 */}
 				<p className="hero__statement" ref={statementRef} aria-hidden="true">
-					{sliceSegments(STATEMENTS[type.i], type.shown).map((s, i) =>
-						s.accent ? (
-							<span className="accent" key={i}>
-								{s.text}
-							</span>
-						) : (
-							<span key={i}>{s.text}</span>
-						)
-					)}
+					{renderSegments(sliceSegments(STATEMENTS[type.i].en, type.shown))}
 					<span className="type-caret" />
 				</p>
 
-				{/* 給輔助技術讀的完整版本 */}
+				{/* 給輔助技術讀的完整英文版本（中文已在上方的 DOM 中） */}
 				<p className="sr-only">
-					{STATEMENTS.map((segs) => segs.map((s) => s.text).join("")).join(" ")}
+					{STATEMENTS.map((stmt) =>
+						stmt.en.map((s) => s.text).join("")
+					).join(" ")}
 				</p>
 			</div>
 
