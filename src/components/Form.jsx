@@ -1,16 +1,23 @@
 /**
  * @file Form.jsx
  * @description 聯絡區塊（05 / Contact）。編輯式極簡表單：大字方括號標題 ＋
- *   name / email / message 欄位。透過 axios POST 送至郵件中繼服務，
- *   提交期間顯示 Loading，完成後以 react-hot-toast 回饋結果。
+ *   name / email / message 欄位。透過 axios POST 送至 Formspree，
+ *   提交期間停用欄位並跑一條進度條，完成後以 react-hot-toast 回饋結果。
  */
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import Loading from "./Loading";
 
 /** 標題展開的觸發門檻：露出這個比例才播，避免擦邊而過就演完了 */
 const REVEAL_AT = 0.35;
+
+/**
+ * 收件端點。用 Formspree 而非自架後端 —— 寄信需要 SMTP 帳密，
+ * 而帳密不能出現在前端，過去為此掛了一台 Heroku 中繼站；
+ * 免費方案終止後那台停機，表單靜默壞掉了一段時間都沒人察覺。
+ * 交給託管服務就沒有「自己的伺服器會不會掛」這個問題。
+ */
+const ENDPOINT = "https://formspree.io/f/mdeozwlp";
 
 /**
  * Form — 聯絡表單
@@ -60,21 +67,26 @@ function Form({ formRef }) {
 	};
 
 	/**
-	 * handleSubmit — 提交表單，POST 至郵件 API，成功後清空欄位並顯示 toast。
+	 * handleSubmit — 提交表單，POST 至 Formspree，成功後清空欄位並顯示 toast。
 	 * @param {React.FormEvent} e - 表單提交事件
 	 */
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsLoading(true);
 		try {
-			const response = await axios.post(
-				"https://polar-thicket-73181-a753805e876d.herokuapp.com/send-email",
-				{ ...formData }
-			);
-			toast.success(response.data.message);
+			await axios.post(ENDPOINT, formData, {
+				// 少了這個標頭，Formspree 會回傳一頁 HTML 的感謝頁而不是 JSON，
+				// 前端就拿不到可判讀的結果。
+				headers: { Accept: "application/json" },
+			});
+			toast.success("訊息已送出，我會盡快回覆你。");
 			setFormData({ name: "", email: "", message: "" });
 		} catch (error) {
-			toast.error(error?.response?.data?.message || "Something went wrong.");
+			// Formspree 的錯誤放在 errors 陣列裡，逐項都是可直接顯示的句子
+			const detail = error?.response?.data?.errors
+				?.map((err) => err.message)
+				.join("；");
+			toast.error(detail || "送出失敗，請稍後再試，或直接私訊 Instagram。");
 		} finally {
 			setIsLoading(false);
 		}
@@ -104,49 +116,61 @@ function Form({ formRef }) {
 				<span className="bracket">]</span>
 			</h2>
 
-			{isLoading ? (
-				<div style={{ minHeight: "200px" }}>
-					<Loading />
+			{/* 傳送期間不卸載表單 —— 整塊消失會讓人以為剛打的字沒了，
+			    而且失敗時畫面會再閃回來一次。改為停用欄位，
+			    在送出列上方跑一條進度條表示還在處理。 */}
+			<form className="form" onSubmit={handleSubmit} aria-busy={isLoading}>
+				<div className="form__field">
+					<label htmlFor="name">Name</label>
+					<input
+						type="text"
+						id="name"
+						name="name"
+						placeholder="Your name"
+						value={formData.name}
+						onChange={handleChange}
+						disabled={isLoading}
+						required
+					/>
 				</div>
-			) : (
-				<form className="form" onSubmit={handleSubmit}>
-					<div className="form__field">
-						<label htmlFor="name">Name</label>
-						<input
-							type="text"
-							id="name"
-							name="name"
-							placeholder="Your name"
-							value={formData.name}
-							onChange={handleChange}
-						/>
-					</div>
-					<div className="form__field">
-						<label htmlFor="email">Email</label>
-						<input
-							type="email"
-							id="email"
-							name="email"
-							placeholder="you@email.com"
-							value={formData.email}
-							onChange={handleChange}
-						/>
-					</div>
-					<div className="form__field is-wide">
-						<label htmlFor="message">Message</label>
-						<textarea
-							id="message"
-							name="message"
-							placeholder="Tell me about your project"
-							value={formData.message}
-							onChange={handleChange}
-						></textarea>
-					</div>
-					<div className="form__submit">
-						<button type="submit">Send message</button>
-					</div>
-				</form>
-			)}
+				<div className="form__field">
+					<label htmlFor="email">Email</label>
+					<input
+						type="email"
+						id="email"
+						name="email"
+						placeholder="you@email.com"
+						value={formData.email}
+						onChange={handleChange}
+						disabled={isLoading}
+						required
+					/>
+				</div>
+				<div className="form__field is-wide">
+					<label htmlFor="message">Message</label>
+					<textarea
+						id="message"
+						name="message"
+						placeholder="Tell me about your project"
+						value={formData.message}
+						onChange={handleChange}
+						disabled={isLoading}
+						required
+					></textarea>
+				</div>
+
+				{/* 常駐於 DOM、僅切換透明度 —— 條件式插入會讓下方的送出列
+				    在傳送開始的瞬間被推下去，出現一次位移。 */}
+				<div className="form__progress" data-active={isLoading} aria-hidden="true">
+					<span />
+				</div>
+
+				<div className="form__submit">
+					<button type="submit" disabled={isLoading}>
+						{isLoading ? "Sending" : "Send message"}
+					</button>
+				</div>
+			</form>
 		</section>
 	);
 }

@@ -1079,6 +1079,67 @@ button {
   color: var(--fg-faint);
 }
 
+/* 傳送進度：不定量（indeterminate）進度條 —— 送信沒有可回報的百分比，
+   假裝有反而是騙人。一段橘色掃過細線，只表達「還在跑」。 */
+.form__progress {
+  grid-column: 1 / -1;
+  height: 2px;
+  background: var(--line);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
+  >span {
+    display: block;
+    height: 100%;
+    width: 38%;
+    background: var(--accent);
+    transform: translateX(-100%);
+  }
+
+  &[data-active="true"] {
+    opacity: 1;
+
+    >span {
+      animation: form-progress 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    }
+  }
+}
+
+@keyframes form-progress {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(360%);
+  }
+}
+
+/* 必須緊接在上方規則之後 —— 兩者特異性相同，靠後者勝出。
+   放進檔案前段的 reduced-motion 區塊會被下面的 animation 蓋掉。 */
+@media (prefers-reduced-motion: reduce) {
+
+  /* 掃描動畫關掉，改為整條恆亮：仍看得出正在處理，只是不再有橫向移動 */
+  .form__progress[data-active="true"]>span {
+    animation: none;
+    width: 100%;
+    transform: none;
+  }
+}
+
+/* 停用中的欄位：轉淡並擋掉游標，讓「現在不能改」是看得出來的 */
+.form input:disabled,
+.form textarea:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.form button:disabled {
+  cursor: wait;
+  color: var(--fg-muted);
+}
+
 .form__submit {
   grid-column: 1 / -1;
   justify-self: start;
