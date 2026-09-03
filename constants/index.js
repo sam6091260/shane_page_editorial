@@ -26,6 +26,7 @@ import fosanthos1 from "../src/assets/web/web-home-hero-desktop.webp";
 import fosanthos2 from "../src/assets/web/web-home-hero-section.webp";
 import fosanthos3 from "../src/assets/web/web-blog-hero-desktop.webp";
 import fosanthos4 from "../src/assets/web/web-home-hero-form.webp";
+import fosanthos5 from "../src/assets/web/mobile.webp";
 
 /**
  * PRODUCT_DATA — 全部作品的元資料陣列
@@ -54,10 +55,11 @@ export const PRODUCT_DATA = [
     link: { label: "fosanthos.com", href: "https://fosanthos.com/" },
     homeImages: [{ id: "fosanthos", src: fosanthos, w: 3240, h: 1080 }],
     images: [
-      { id: "fosanthos1", src: fosanthos1, w: 1920, h: 1200 },
-      { id: "fosanthos2", src: fosanthos2, w: 1880, h: 916 },
-      { id: "fosanthos3", src: fosanthos3, w: 1920, h: 1200 },
-      { id: "fosanthos4", src: fosanthos4, w: 1878, h: 918 },
+      { id: "fosanthos1", src: fosanthos1, w: 1920, h: 1440 },
+      { id: "fosanthos2", src: fosanthos2, w: 1920, h: 1440 },
+      { id: "fosanthos3", src: fosanthos3, w: 1920, h: 1440 },
+      { id: "fosanthos4", src: fosanthos4, w: 1920, h: 1440 },
+      { id: "fosanthos5", src: fosanthos5, w: 1920, h: 1440 },
     ],
   },
   {
