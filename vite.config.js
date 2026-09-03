@@ -4,10 +4,10 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // GitHub Pages 是專案子路徑（/shane_page_editorial/），Netlify 則發在網域根目錄。
-  // Netlify 在建置時會自動注入 NETLIFY=true，據此切換即可讓同一份 repo
-  // 同時供兩邊部署 —— 忘了改 base 的話，所有 JS/CSS/圖片都會 404，畫面全白。
-  base: process.env.NETLIFY ? "/" : "/shane_page_editorial/",
+  // 站點只發在 Netlify 的網域根目錄，因此固定為 "/"。
+  // 先前為了同時供 GitHub Pages（專案子路徑）部署而依 NETLIFY 環境變數切換；
+  // 兩邊內容相同會造成重複內容，且子路徑部署與 BrowserRouter 相衝，已停用。
+  base: "/",
   plugins: [react()],
   resolve: {
     alias: {

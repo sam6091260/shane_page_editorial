@@ -1,14 +1,19 @@
-# Netlify 部署設定。
-#
-# 不需要 SPA redirect 規則 —— 本專案用的是 HashRouter（src/main.jsx），
-# 路由都在 # 之後，伺服器只會收到對 / 的請求，重新整理不會 404。
-# 若哪天改用 BrowserRouter，就必須補上 /* → /index.html 200 的 rewrite。
-#
-# base path 由 vite.config.js 依 NETLIFY 環境變數自動切換，此處不需處理。
+# Netlify 部署設定。這是本站唯一的部署目標（GitHub Pages 已停用）。
 
 [build]
 command = "npm run build"
 publish = "dist"
+
+# SPA rewrite。路由改用 BrowserRouter 之後，/detail/fosanthos 這類網址
+# 會真的送到伺服器，而 dist 裡並沒有這個檔案 —— 少了這條規則，
+# 直接開連結或重新整理都會拿到 404。
+#
+# 放在既有的靜態檔案之後才生效，所以 /sitemap.xml、/og-image.jpg、
+# /assets/* 仍照常回傳自己，不會被這條吃掉。
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
 
 [build.environment]
 # 明確釘住 Node 版本。本專案仍在 Vite 4，跟著 Netlify 預設版本一路往上跳

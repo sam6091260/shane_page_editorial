@@ -9,6 +9,7 @@ import Masonry from 'react-masonry-css';
 import { useNavigate } from 'react-router-dom';
 import { PRODUCT_DATA } from "../../constants";
 import '../styles/Gallery.css';
+import usePageMeta from '../hooks/usePageMeta';
 
 /**
  * Gallery — 相簿頁面，不接受任何 props。
@@ -17,6 +18,12 @@ import '../styles/Gallery.css';
  */
 const Gallery = () => {
   const navigate = useNavigate();
+
+  usePageMeta({
+    title: 'Work Gallery — Shane Lin',
+    description: 'Shane Lin 全部作品的圖片總覽 —— 品牌識別、商標、海報與網站設計。',
+  });
+
   
   const breakpointColumns = {
     default: 4,

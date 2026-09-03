@@ -13,6 +13,7 @@ import { PRODUCT_DATA } from "../../constants";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import usePageMeta from "../hooks/usePageMeta";
 
 /** Lightbox 關閉時的索引值。用 -1 而非 null，才能直接以 index >= 0 判斷開闔 */
 const CLOSED = -1;
@@ -70,6 +71,17 @@ const Products = () => {
 	}, [product]);
 
 	const blocks = useMemo(() => groupImages(shots), [shots]);
+
+	// 每件作品各有自己的標題與描述。呼叫點在 !product 的提早 return 之前 ——
+	// hook 的呼叫順序不能隨條件變動。
+	usePageMeta(
+		product
+			? {
+					title: `${product.title} — Shane Lin`,
+					description: `${product.category}｜${product.customer}。Shane Lin 的作品案例，共 ${shots.length} 張圖。`,
+			  }
+			: { title: "Project not found — Shane Lin" }
+	);
 
 	// 切換作品時回到頂部，並收起可能還開著的 Lightbox
 	useEffect(() => {
