@@ -6,11 +6,12 @@
  *   （getElementById 找不到元素時 ?. 會直接短路，不會報錯）。
  *
  *   name 必須與各區塊 <section> 上的 id 完全一致。
+ *   zh 是選單裡跟在英文標題後的中文對照（桌機 hover 時浮現，手機常駐）。
  */
 export const SECTIONS = [
-	{ num: "01", name: "index", label: "Index", meta: "Introduction" },
-	{ num: "02", name: "work", label: "Work", meta: "Selected projects" },
-	{ num: "03", name: "practice", label: "Practice", meta: "Capabilities" },
-	{ num: "04", name: "about", label: "About", meta: "Profile" },
-	{ num: "05", name: "contact", label: "Contact", meta: "Get in touch" },
+	{ num: "01", name: "index", label: "Index", zh: "首頁", meta: "Introduction" },
+	{ num: "02", name: "work", label: "Work", zh: "作品", meta: "Selected projects" },
+	{ num: "03", name: "practice", label: "Practice", zh: "專長", meta: "Capabilities" },
+	{ num: "04", name: "about", label: "About", zh: "關於", meta: "Profile" },
+	{ num: "05", name: "contact", label: "Contact", zh: "聯絡", meta: "Get in touch" },
 ];

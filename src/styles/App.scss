@@ -340,12 +340,30 @@ button {
   }
 
   .menu-link__label {
+    /* 改為 flex，讓中文對照能與英文標題共用同一格並對齊基線 */
+    display: flex;
+    align-items: baseline;
+    gap: clamp(10px, 1.4vw, 20px);
     font-family: var(--font-display);
     font-size: clamp(34px, 6.4vw, 76px);
     line-height: 0.95;
     text-transform: uppercase;
     letter-spacing: -0.015em;
     color: currentColor;
+  }
+
+  /* 中文對照。預設常駐 —— 觸控裝置沒有 hover，藏起來就等於永遠看不到。
+     桌機的浮現效果寫在下方的 (hover: hover) 區塊裡。 */
+  .menu-link__zh {
+    font-family: var(--font-mono);
+    font-size: clamp(14px, 1.4vw, 20px);
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: none;
+    white-space: nowrap;
+    color: var(--fg-faint);
+    transition: color 0.3s ease, opacity 0.3s ease,
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .menu-link__meta {
@@ -385,6 +403,26 @@ button {
     .menu-link__meta {
       color: var(--fg-muted);
     }
+
+    .menu-link__zh {
+      color: var(--accent);
+    }
+  }
+}
+
+/* 桌機（有真正的游標）才做浮現：中文預設隱藏，hover 或當前區塊時滑入。
+   用 (hover: hover) 而非螢幕寬度 —— 判斷依據是「有沒有滑鼠」，
+   不是「螢幕多寬」，平板橫放時才不會誤判成桌機而把中文藏死。 */
+@media (hover: hover) and (pointer: fine) {
+  .menu-link__zh {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  .menu-link:hover .menu-link__zh,
+  .menu-link.active .menu-link__zh {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

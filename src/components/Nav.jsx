@@ -90,7 +90,10 @@ function Nav({ activeSection }) {
                 onClick={() => go(s.name)}
               >
                 <span className="menu-link__num">{s.num}</span>
-                <span className="menu-link__label">{s.label}</span>
+                <span className="menu-link__label">
+                  {s.label}
+                  <span className="menu-link__zh">{s.zh}</span>
+                </span>
                 <span className="menu-link__meta">{s.meta}</span>
                 <span className="menu-link__arrow" aria-hidden="true">→</span>
               </button>
@@ -103,7 +106,10 @@ function Nav({ activeSection }) {
               onClick={() => setOpen(false)}
             >
               <span className="menu-link__num">06</span>
-              <span className="menu-link__label">Gallery</span>
+              <span className="menu-link__label">
+                Gallery
+                <span className="menu-link__zh">相簿</span>
+              </span>
               <span className="menu-link__meta">Full archive</span>
               <span className="menu-link__arrow" aria-hidden="true">↗</span>
             </Link>
